@@ -1,8 +1,9 @@
 {
   "name": "pipaslot-vuex-typescript",
-  "version": "1.0.0-rc.3",
+  "version": "1.0.0-rc.4",
   "description": "State manager inspired by vuex, designed for typescript",
   "main": "dist/index",
+  "typings": "dist/index",
   "directories": {
     "example": "example"
   },
@@ -14,11 +15,7 @@
     "type": "git",
     "url": "git+https://github.com/pipaslot/vuex-typescript.git"
   },
-  "keywords": [
-    "state manager",
-    "vuex",
-    "typescript"
-  ],
+  "keywords": ["state manager", "vuex", "typescript"],
   "author": "Petr Stipek",
   "license": "MIT",
   "bugs": {
