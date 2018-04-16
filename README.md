@@ -28,12 +28,17 @@ class RootMutations extends Mutations<RootState> {
 }
 
 class MyStore extends Store<RootState, RootMutations> {
+// Define store action
   myAction(input: string) {
     this.mutations.myMutation(input);
     // call sub-module action
     this.security.myModuleAction(input);
     // call sub-mutation action
     this.security.mutations.myModuleMutation(input);
+  }
+  // Define store getter
+  get myGetter(){
+    return "Getter value: " + this.state.myStoreData + "!!!"
   }
   // Define store module. Every Store or store module can contains another Modules.
   myModule;
@@ -57,11 +62,15 @@ class MyModuleMutations extends Mutations<MyModuleState> {
 }
 
 class MyModuleStore extends Store<MyModuleState, MyModuleMutations> {
+  // Define module Action
   myModuleAction(input: string) {
     this.mutations.myModuleMutation(input);
   }
-  // Define store module
-  security;
+  // Define module getter
+  get myModuleGetter(){
+    return "Getter value: " + this.state.myStoreData + "!!!"
+  }
+  //We also can define another sub-modules as properties
 }
 export default new MyModuleStore(new RootState(), new RootMutations());
 ```
@@ -119,7 +128,7 @@ export default class MyComponent extends Vue {
     let storeState = this.$store.state.myStoreData;
 
     //Get value from store getters
-    let storeComputedCalue = this.$store.myGetter; // OR: this.$store.getters.myGetter
+    let storeComputedValue = this.$store.myGetter; // OR: this.$store.getters.myGetter
   }
   componentActionforStoreModule() {
     //Call store module action
@@ -132,7 +141,7 @@ export default class MyComponent extends Vue {
     let storeState = this.$store.state.myModule.myStoreData; // OR: this.$store.myModule.state.myStoreData
 
     //Get value from store getters
-    let storeComputedCalue = this.$store.myModule.myGetter; // OR: this.$store.getters.myModule.myGetter
+    let storeComputedValue = this.$store.myModule.myModuleGetter; // OR: this.$store.getters.myModule.myModuleGetter
   }
 }
 ```
@@ -155,7 +164,7 @@ export function actionforStoreRoot() {
     let storeState = store.state.myStoreData;
 
     //Get value from store getters
-    let storeComputedCalue = store.myGetter; // OR: store.getters.myGetter
+    let storeComputedValue = store.myGetter; // OR: store.getters.myGetter
   }
 export function actionforStoreModule() {
     //Call store module action
@@ -168,6 +177,6 @@ export function actionforStoreModule() {
     let storeState = store.state.myModule.myStoreData; // OR: store.myModule.state.myStoreData
 
     //Get value from store getters
-    let storeComputedCalue = store.myModule.myGetter; // OR: store.getters.myModule.myGetter
+    let storeComputedValue = store.myModule.myModuleGetter; // OR: store.getters.myModule.myModuleGetter
   }
 ```
