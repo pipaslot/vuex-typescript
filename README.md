@@ -36,7 +36,7 @@ class MyStore extends Store<RootState, RootMutations> {
     this.security.mutations.myModuleMutation(input);
   }
   // Define store module. Every Store or store module can contains another Modules.
-  security;
+  myModule;
 }
 
 export default new MyStore(new RootState(), new RootMutations());
