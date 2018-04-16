@@ -1,8 +1,8 @@
 {
   "name": "pipaslot-vuex-typescript",
-  "version": "1.0.0-rc.2",
+  "version": "1.0.0-rc.3",
   "description": "State manager inspired by vuex, designed for typescript",
-  "main": "dist/index.js",
+  "main": "dist/index",
   "directories": {
     "example": "example"
   },
