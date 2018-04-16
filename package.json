@@ -1,12 +1,13 @@
 {
   "name": "pipaslot-vuex-typescript",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.2",
   "description": "State manager inspired by vuex, designed for typescript",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "directories": {
     "example": "example"
   },
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -26,5 +27,8 @@
   "homepage": "https://github.com/pipaslot/vuex-typescript#readme",
   "dependencies": {
     "vue": "^2.5.16"
+  },
+  "devDependencies": {
+    "@types/node": "^9.6.5"
   }
 }
