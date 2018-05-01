@@ -41,7 +41,7 @@ class MyStore extends Store<RootState, RootMutations> {
     return "Getter value: " + this.state.myStoreData + "!!!"
   }
   // Define store module. Every Store or store module can contains another Modules.
-  myModule;
+  myModule = myModule;
 }
 
 export default new MyStore(new RootState(), new RootMutations());
@@ -72,7 +72,7 @@ class MyModuleStore extends Store<MyModuleState, MyModuleMutations> {
   }
   //We also can define another sub-modules as properties
 }
-export default new MyModuleStore(new RootState(), new RootMutations());
+export default new MyModuleStore(new MyModuleState(), new MyModuleMutations());
 ```
 
 ### 1.3 Attach store into Vue
