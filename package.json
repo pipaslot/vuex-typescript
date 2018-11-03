@@ -1,21 +1,21 @@
 {
   "name": "pipaslot-vuex-typescript",
-  "version": "1.0.0-rc.4",
+  "version": "1.0.0",
   "description": "State manager inspired by vuex, designed for typescript",
   "main": "dist/index",
   "typings": "dist/index",
-  "directories": {
-    "example": "example"
-  },
   "scripts": {
-    "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/pipaslot/vuex-typescript.git"
   },
-  "keywords": ["state manager", "vuex", "typescript"],
+  "keywords": [
+    "state manager",
+    "vuex",
+    "typescript"
+  ],
   "author": "Petr Stipek",
   "license": "MIT",
   "bugs": {
@@ -23,9 +23,9 @@
   },
   "homepage": "https://github.com/pipaslot/vuex-typescript#readme",
   "dependencies": {
-    "vue": "^2.5.16"
+    "vue": "^2.5.17"
   },
   "devDependencies": {
-    "@types/node": "^9.6.5"
+    "@types/node": "^9.6.36"
   }
 }

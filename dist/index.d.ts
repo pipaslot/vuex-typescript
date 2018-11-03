@@ -20,13 +20,13 @@ export declare class StoreProxy<S, M extends Mutations<S>> {
     subscribe(handler: (mutation: string, state: any) => void): () => void;
     /** Replace store state */
     replaceState(state: S): void;
-    private _resetStoreVm();
-    private _registerSubModules(mod, getters, computed, prefix);
+    private _resetStoreVm;
+    private _registerSubModules;
     /** Register modules recursively */
-    private _registerSubModule(mod, getters, computed, prefix);
-    private _registerGetters(mod, getters, computed, prefix);
+    private _registerSubModule;
+    private _registerGetters;
     /** Create proxy method for mutations for logging */
-    private _wrapMutations(mutations, state, prefix);
+    private _wrapMutations;
     /** Commit mutation */
-    private _commit(fn);
+    private _commit;
 }
