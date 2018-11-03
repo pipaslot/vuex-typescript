@@ -28,6 +28,7 @@ class RootMutations extends Mutations<RootState> {
 }
 
 class MyStore extends Store<RootState, RootMutations> {
+// Define store action
   myAction(input: string) {
     this.mutations.myMutation(input);
     // call sub-module action
@@ -35,8 +36,12 @@ class MyStore extends Store<RootState, RootMutations> {
     // call sub-mutation action
     this.security.mutations.myModuleMutation(input);
   }
+  // Define store getter
+  get myGetter(){
+    return "Getter value: " + this.state.myStoreData + "!!!"
+  }
   // Define store module. Every Store or store module can contains another Modules.
-  myModule;
+  myModule = myModule;
 }
 
 export default new MyStore(new RootState(), new RootMutations());
@@ -57,13 +62,17 @@ class MyModuleMutations extends Mutations<MyModuleState> {
 }
 
 class MyModuleStore extends Store<MyModuleState, MyModuleMutations> {
+  // Define module Action
   myModuleAction(input: string) {
     this.mutations.myModuleMutation(input);
   }
-  // Define store module
-  security;
+  // Define module getter
+  get myModuleGetter(){
+    return "Getter value: " + this.state.myStoreData + "!!!"
+  }
+  //We also can define another sub-modules as properties
 }
-export default new MyModuleStore(new RootState(), new RootMutations());
+export default new MyModuleStore(new MyModuleState(), new MyModuleMutations());
 ```
 
 ### 1.3 Attach store into Vue
@@ -96,7 +105,7 @@ declare module "vue/types/vue" {
 }
 ```
 
-## Use the Store
+## 2 Use the Store
 
 ### 2.1 Use Store in component
 
@@ -119,7 +128,7 @@ export default class MyComponent extends Vue {
     let storeState = this.$store.state.myStoreData;
 
     //Get value from store getters
-    let storeComputedCalue = this.$store.myGetter; // OR: this.$store.getters.myGetter
+    let storeComputedValue = this.$store.myGetter; // OR: this.$store.getters.myGetter
   }
   componentActionforStoreModule() {
     //Call store module action
@@ -132,7 +141,7 @@ export default class MyComponent extends Vue {
     let storeState = this.$store.state.myModule.myStoreData; // OR: this.$store.myModule.state.myStoreData
 
     //Get value from store getters
-    let storeComputedCalue = this.$store.myModule.myGetter; // OR: this.$store.getters.myModule.myGetter
+    let storeComputedValue = this.$store.myModule.myModuleGetter; // OR: this.$store.getters.myModule.myModuleGetter
   }
 }
 ```
@@ -155,7 +164,7 @@ export function actionforStoreRoot() {
     let storeState = store.state.myStoreData;
 
     //Get value from store getters
-    let storeComputedCalue = store.myGetter; // OR: store.getters.myGetter
+    let storeComputedValue = store.myGetter; // OR: store.getters.myGetter
   }
 export function actionforStoreModule() {
     //Call store module action
@@ -168,6 +177,16 @@ export function actionforStoreModule() {
     let storeState = store.state.myModule.myStoreData; // OR: store.myModule.state.myStoreData
 
     //Get value from store getters
-    let storeComputedCalue = store.myModule.myGetter; // OR: store.getters.myModule.myGetter
+    let storeComputedValue = store.myModule.myModuleGetter; // OR: store.getters.myModule.myModuleGetter
   }
 ```
+
+## 3 Bad Practices
+
+We are used to have rather best practices, but every software has its disadvantages and it is better to know them.
+
+### 3.1 Do not invoke mutations from another mutations
+It is similar like in original vuex implementation, that we should use mutation synchronously. All asynchronous operations should be implemented into actions. The same it is also with callign multiple mutations. In this library every mutations can touch another mutations, but keep in mind that dev-tools logs all mutations whent the mutation is finished. If you would call one mutation from another mutation, then dev-tool will log them in opposite order. It can cause a pain to your debugging in future.
+
+### 3.2 Do not mutate store state out of mutations
+In development mode all state changes called out of mutations will cause exceptions. In production exception won't be thrown, to be sure that store will be working in any case.
