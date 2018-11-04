@@ -1,7 +1,6 @@
 import Vue from "vue";
 
 export class Mutations<State> {
-  [key: string]: any;
   private _state: State = Object.create(null);
   /** Inject state from store  */
   __inject(state: State) {
@@ -14,7 +13,6 @@ export class Mutations<State> {
 }
 
 export class Store<S, M extends Mutations<S>> {
-  [key: string]: any;
   constructor(private _state: S, private _mutations: M) {}
   /** Module state */
   public get state(): S {

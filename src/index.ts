@@ -13,6 +13,12 @@ export function install(_vue: any, options: Store<any, any>) {
   });
 }
 
+
+interface Indexable {
+  [key: string]: any;
+}
+
+
 export class StoreProxy<S, M extends Mutations<S>> {
   [key: string]: any;
   private _computed: any = Object.create(null);
@@ -31,7 +37,7 @@ export class StoreProxy<S, M extends Mutations<S>> {
 
     // Copy methods
     helpers.getMethodNames(this._root).forEach(key => {
-      this[key] = this._root[key];
+      this[key] = (this._root as Indexable)[key];
     });
 
     // Register submodules
@@ -40,7 +46,7 @@ export class StoreProxy<S, M extends Mutations<S>> {
     // Copy sub-modules into store
     helpers.getPropertyNames(this._root).forEach(key => {
       Object.defineProperty(this, key, {
-        get: () => this._root[key],
+        get: () => (this._root as Indexable)[key],
         enumerable: true
       });
     });
@@ -121,13 +127,8 @@ export class StoreProxy<S, M extends Mutations<S>> {
   ) {
     helpers.getPropertyNames(mod).forEach(key => {
       getters[key] = {};
-      mod.state[key] = mod[key].state;
-      this._registerSubModule(
-        mod[key],
-        getters[key],
-        computed,
-        prefix + key + "/"
-      );
+      mod.state[key] = (mod as Indexable)[key].state;
+      this._registerSubModule((mod as Indexable)[key], getters[key], computed, prefix + key + "/");
     });
   }
   /** Register modules recursively */
@@ -157,7 +158,7 @@ export class StoreProxy<S, M extends Mutations<S>> {
       const getterPrefix = "__";
       let store = this;
       computed[getterPrefix + prefix + key] = () => {
-        return mod[key];
+        return (mod as Indexable)[key];
       };
       Object.defineProperty(getters, key, {
         get: () => store._storeVm[getterPrefix + prefix + key],
@@ -176,8 +177,8 @@ export class StoreProxy<S, M extends Mutations<S>> {
     mutations.__inject(state);
     helpers.getMethodNames(mutations).forEach(key => {
       // Define proxy method
-      let originalMethod = mutations[key];
-      mutations[key] = function() {
+      let originalMethod = (mutations as Indexable)[key];
+      (mutations as Indexable)[key] = function() {
         const args = arguments;
         store._commit(function() {
           originalMethod.apply(mutations, args);
