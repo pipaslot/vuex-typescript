@@ -7,7 +7,7 @@ State Manager designed for [Vue](https://github.com/vuejs/vue), inspired by [vue
 ### 1.1 Install package
 
 ```bash
-$ npm install pipaslot-vuex-typescript --save-dev
+$ npm install pipaslot-vuex-typescript --save
 ```
 
 ### 1.2 Create own store
@@ -27,7 +27,7 @@ class RootMutations extends Mutations<RootState> {
   }
 }
 
-class MyStore extends Store<RootState, RootMutations> {
+export class MyStore extends Store<RootState, RootMutations> {
 // Define store action
   myAction(input: string) {
     this.mutations.myMutation(input);
@@ -52,6 +52,8 @@ export default new MyStore(new RootState(), new RootMutations());
 myModule.ts
 
 ```ts
+import { Mutations, Store } from "pipaslot-vuex-typescript"
+
 class MyModuleState {
   myStoreData: string = "";
 }
@@ -92,7 +94,7 @@ Vue.use(vuexTypescript.install, myStore);
 
 ### 1.4 Say to your TS compiler what type contains $store property in vue object
 
-vue.d.ts
+vue.d.ts or shims-vue.d.ts
 
 ```ts
 import Vue from "vue";
