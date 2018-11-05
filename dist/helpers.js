@@ -23,22 +23,3 @@ export function getPropertyNames(obj) {
         return !key.startsWith("_");
     });
 }
-export function defineGetter(obj, key, fn) {
-    Object.defineProperty(obj, key, {
-        configurable: true,
-        enumerable: true,
-        get: fn
-    });
-}
-export function defineProperty(obj, key, value) {
-    Object.defineProperty(obj, key, {
-        configurable: true,
-        enumerable: true,
-        get: function () {
-            return value;
-        },
-        set: function (val) {
-            value = val;
-        }
-    });
-}
