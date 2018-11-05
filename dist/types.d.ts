@@ -19,3 +19,14 @@ export interface IVueState<T> extends Vue {
     [key: string]: any;
     $$state: T;
 }
+export interface IIndexable {
+    [key: string]: any;
+}
+export interface IStoreProxy<S> {
+    /** Add Mutation listener */
+    subscribe(handler: (mutation: string, state: any) => void): void;
+    /** Replace store state */
+    replaceState(state: S): void;
+    /** Call mutation */
+    commit(mutation: string, payload: any): void;
+}

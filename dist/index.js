@@ -49,7 +49,9 @@ var StoreProxy = /** @class */ (function () {
         });
         // Initialize store
         this._resetStoreVm();
-        devtoolPlugin(this);
+        if (Vue.config.devtools) {
+            devtoolPlugin(this);
+        }
     }
     Object.defineProperty(StoreProxy.prototype, "state", {
         /** State tree */
@@ -94,6 +96,20 @@ var StoreProxy = /** @class */ (function () {
         this._commit(function () {
             _this._storeVm._data.$$state = state;
         });
+    };
+    /** Call mutation */
+    StoreProxy.prototype.commit = function (mutation) {
+        var payload = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            payload[_i - 1] = arguments[_i];
+        }
+        var mutationCallback = this.mutations[mutation];
+        if (typeof mutationCallback === "function") {
+            mutationCallback.apply(this.mutations, payload);
+        }
+        else {
+            throw new Error("Mutation '" + mutation + "' does not exists!");
+        }
     };
     StoreProxy.prototype._resetStoreVm = function () {
         var _this = this;

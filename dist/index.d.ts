@@ -1,7 +1,7 @@
-import { Mutations, Store } from "./types";
+import { Mutations, Store, IStoreProxy } from "./types";
 export { Mutations, Store } from "./types";
 export declare function install(_vue: any, options: Store<any, any>): void;
-export declare class StoreProxy<S, M extends Mutations<S>> {
+export declare class StoreProxy<S, M extends Mutations<S>> implements IStoreProxy<S> {
     private _root;
     [key: string]: any;
     private _computed;
@@ -20,6 +20,8 @@ export declare class StoreProxy<S, M extends Mutations<S>> {
     subscribe(handler: (mutation: string, state: any) => void): () => void;
     /** Replace store state */
     replaceState(state: S): void;
+    /** Call mutation */
+    commit(mutation: string, ...payload: any[]): void;
     private _resetStoreVm;
     private _registerSubModules;
     /** Register modules recursively */

@@ -1,7 +1,7 @@
 import Vue from "vue";
 import * as helpers from "./helpers";
 import devtoolPlugin from "./devtoolPlugin";
-import { Mutations, Store, IVueState } from "./types";
+import { Mutations, Store, IVueState, IIndexable, IStoreProxy } from "./types";
 export { Mutations, Store } from "./types";
 
 export function install(_vue: any, options: Store<any, any>) {
@@ -13,13 +13,9 @@ export function install(_vue: any, options: Store<any, any>) {
   });
 }
 
-interface Indexable {
-  [key: string]: any;
-}
-
 const getterPrefix: string = "__";
 
-export class StoreProxy<S, M extends Mutations<S>> {
+export class StoreProxy<S, M extends Mutations<S>> implements IStoreProxy<S> {
   [key: string]: any;
   private _computed: any = Object.create(null);
   private _storeVm: IVueState<S> = new Vue({
@@ -46,7 +42,7 @@ export class StoreProxy<S, M extends Mutations<S>> {
 
     // Copy methods
     helpers.getMethodNames(this._root).forEach(key => {
-      this[key] = (this._root as Indexable)[key];
+      this[key] = (this._root as IIndexable)[key];
     });
 
     // Register submodules
@@ -55,14 +51,17 @@ export class StoreProxy<S, M extends Mutations<S>> {
     // Copy sub-modules into store
     helpers.getPropertyNames(this._root).forEach(key => {
       Object.defineProperty(this, key, {
-        get: () => (this._root as Indexable)[key],
+        get: () => (this._root as IIndexable)[key],
         enumerable: true
       });
     });
 
     // Initialize store
     this._resetStoreVm();
-    devtoolPlugin(this);
+
+    if (Vue.config.devtools) {
+      devtoolPlugin(this);
+    }
   }
   /** State tree */
   get state() {
@@ -93,6 +92,16 @@ export class StoreProxy<S, M extends Mutations<S>> {
     this._commit(() => {
       this._storeVm._data.$$state = state;
     });
+  }
+
+  /** Call mutation */
+  public commit(mutation: string, ...payload: any[]) {
+    var mutationCallback = (this.mutations as IIndexable)[mutation];
+    if (typeof mutationCallback === "function") {
+      mutationCallback.apply(this.mutations, payload);
+    } else {
+      throw new Error("Mutation '" + mutation + "' does not exists!");
+    }
   }
 
   private _resetStoreVm() {
@@ -136,8 +145,13 @@ export class StoreProxy<S, M extends Mutations<S>> {
   ) {
     helpers.getPropertyNames(mod).forEach(key => {
       getters[key] = {};
-      mod.state[key] = (mod as Indexable)[key].state;
-      this._registerSubModule((mod as Indexable)[key], getters[key], computed, prefix + key + "/");
+      mod.state[key] = (mod as IIndexable)[key].state;
+      this._registerSubModule(
+        (mod as IIndexable)[key],
+        getters[key],
+        computed,
+        prefix + key + "/"
+      );
     });
   }
   /** Register modules recursively */
@@ -166,7 +180,7 @@ export class StoreProxy<S, M extends Mutations<S>> {
     helpers.getGetterNames(mod).forEach(key => {
       let store = this;
       computed[getterPrefix + prefix + key] = () => {
-        return (mod as Indexable)[key];
+        return (mod as IIndexable)[key];
       };
       Object.defineProperty(getters, key, {
         get: () => store._storeVm[getterPrefix + prefix + key],
@@ -185,8 +199,8 @@ export class StoreProxy<S, M extends Mutations<S>> {
     mutations.__inject(state);
     helpers.getMethodNames(mutations).forEach(key => {
       // Define proxy method
-      let originalMethod = (mutations as Indexable)[key];
-      (mutations as Indexable)[key] = function() {
+      let originalMethod = (mutations as IIndexable)[key];
+      (mutations as IIndexable)[key] = function() {
         const args = arguments;
         store._commit(function() {
           originalMethod.apply(mutations, args);
