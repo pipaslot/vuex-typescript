@@ -10,6 +10,7 @@ export function install(_vue, options) {
         }
     });
 }
+var getterPrefix = "__";
 var StoreProxy = /** @class */ (function () {
     function StoreProxy(_root) {
         var _this = this;
@@ -23,6 +24,14 @@ var StoreProxy = /** @class */ (function () {
         this._subscribers = [];
         // Getters
         this._registerGetters(this._root, this._getters, this._computed, "");
+        // Copy getters to proxy
+        helpers.getGetterNames(this._root).forEach(function (key) {
+            var store = _this;
+            Object.defineProperty(_this, key, {
+                get: function () { return store._storeVm[getterPrefix + key]; },
+                enumerable: true
+            });
+        });
         // Mutations
         this._wrapMutations(this._root.mutations, this._root.state, "");
         // Copy methods
@@ -134,7 +143,6 @@ var StoreProxy = /** @class */ (function () {
     StoreProxy.prototype._registerGetters = function (mod, getters, computed, prefix) {
         var _this = this;
         helpers.getGetterNames(mod).forEach(function (key) {
-            var getterPrefix = "__";
             var store = _this;
             computed[getterPrefix + prefix + key] = function () {
                 return mod[key];

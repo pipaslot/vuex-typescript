@@ -13,11 +13,11 @@ export function install(_vue: any, options: Store<any, any>) {
   });
 }
 
-
 interface Indexable {
   [key: string]: any;
 }
 
+const getterPrefix: string = "__";
 
 export class StoreProxy<S, M extends Mutations<S>> {
   [key: string]: any;
@@ -31,6 +31,15 @@ export class StoreProxy<S, M extends Mutations<S>> {
   constructor(private _root: Store<S, M>) {
     // Getters
     this._registerGetters(this._root, this._getters, this._computed, "");
+
+    // Copy getters to proxy
+    helpers.getGetterNames(this._root).forEach(key => {
+      let store = this;
+      Object.defineProperty(this, key, {
+        get: () => store._storeVm[getterPrefix + key],
+        enumerable: true
+      });
+    });
 
     // Mutations
     this._wrapMutations(this._root.mutations, this._root.state, "");
@@ -155,7 +164,6 @@ export class StoreProxy<S, M extends Mutations<S>> {
     prefix: string
   ) {
     helpers.getGetterNames(mod).forEach(key => {
-      const getterPrefix = "__";
       let store = this;
       computed[getterPrefix + prefix + key] = () => {
         return (mod as Indexable)[key];
