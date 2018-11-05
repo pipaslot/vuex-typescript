@@ -5,7 +5,8 @@
   "main": "dist/index",
   "typings": "dist/index",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "serve-basic": "vue-cli-service serve ./examples/basic/src/main.ts"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,11 @@
     "vue": "^2.5.17"
   },
   "devDependencies": {
-    "@types/node": "^9.6.36"
+    "@types/node": "^9.6.36",
+    "vue-property-decorator": "^7.0.0",
+    "@vue/cli-plugin-typescript": "^3.1.1",
+    "@vue/cli-service": "^3.0.5",
+    "typescript": "^3.0.0",
+    "vue-template-compiler": "^2.5.17"
   }
 }
