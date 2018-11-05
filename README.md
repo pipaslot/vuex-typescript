@@ -64,6 +64,8 @@ class MyModuleMutations extends Mutations<MyModuleState> {
 }
 
 class MyModuleStore extends Store<MyModuleState, MyModuleMutations> {
+  // Define/Enable indexing
+  [key: string]: any;
   // Define module Action
   myModuleAction(input: string) {
     this.mutations.myModuleMutation(input);
@@ -130,7 +132,7 @@ export default class MyComponent extends Vue {
     let storeState = this.$store.state.myStoreData;
 
     //Get value from store getters
-    let storeComputedValue = this.$store.myGetter; // OR: this.$store.getters.myGetter
+    let storeComputedValue = this.$store.myGetter; // OR: this.$store.getters.myGetter (if indexing is defined)
   }
   componentActionforStoreModule() {
     //Call store module action
@@ -140,10 +142,10 @@ export default class MyComponent extends Vue {
     this.$store.myModule.mutations.myModuleMutation(this.myData);
 
     //Get Store state
-    let storeState = this.$store.state.myModule.myStoreData; // OR: this.$store.myModule.state.myStoreData
+    let storeState = this.$store.myModule.state.myStoreData; // OR: this.$store.state.myModule.myStoreData (if indexing is defined)
 
     //Get value from store getters
-    let storeComputedValue = this.$store.myModule.myModuleGetter; // OR: this.$store.getters.myModule.myModuleGetter
+    let storeComputedValue = this.$store.myModule.myModuleGetter; // OR: this.$store.getters.myModule.myModuleGetter (if indexing is defined)
   }
 }
 ```
@@ -166,7 +168,7 @@ export function actionforStoreRoot() {
     let storeState = store.state.myStoreData;
 
     //Get value from store getters
-    let storeComputedValue = store.myGetter; // OR: store.getters.myGetter
+    let storeComputedValue = store.myGetter; // OR: store.getters.myGetter (if indexing is defined)
   }
 export function actionforStoreModule() {
     //Call store module action
@@ -176,10 +178,10 @@ export function actionforStoreModule() {
     store.myModule.mutations.myModuleMutation(...);  
 
     //Get Store state
-    let storeState = store.state.myModule.myStoreData; // OR: store.myModule.state.myStoreData
+    let storeState = store.myModule.state.myStoreData; // OR: store.state.myModule.myStoreData (if indexing is defined)
 
     //Get value from store getters
-    let storeComputedValue = store.myModule.myModuleGetter; // OR: store.getters.myModule.myModuleGetter
+    let storeComputedValue = store.myModule.myModuleGetter; // OR: store.getters.myModule.myModuleGetter (if indexing is defined)
   }
 ```
 
