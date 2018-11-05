@@ -1,4 +1,4 @@
-import { Mutations, Store} from "pipaslot-vuex-typescript";
+import { Mutations, Store} from "../../../../src";
 
 export class RootState {
     count: number = 0;

@@ -7,7 +7,6 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
-    "pipaslot-vuex-typescript": "^1.0.2",
     "vue": "^2.5.17",
     "vue-property-decorator": "^7.0.0"
   },
