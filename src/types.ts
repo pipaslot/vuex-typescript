@@ -38,6 +38,4 @@ export interface IStoreProxy<S> {
   subscribe(handler: (mutation: string, state: any) => void): void;
   /** Replace store state */
   replaceState(state: S): void;
-  /** Call mutation */
-  commit(mutation: string, payload: any): void;
 }

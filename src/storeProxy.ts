@@ -84,16 +84,6 @@ export default class StoreProxy<S, M extends Mutations<S>> implements IStoreProx
         });
     }
 
-    /** Call mutation */
-    public commit(mutation: string, ...payload: any[]) {
-        var mutationCallback = (this.mutations as IIndexable)[mutation];
-        if (typeof mutationCallback === "function") {
-            mutationCallback.apply(this.mutations, payload);
-        } else {
-            throw new Error("Mutation '" + mutation + "' does not exists!");
-        }
-    }
-
     private _resetStoreVm() {
         const oldVm = this._storeVm;
         // use a Vue instance to store the state tree
