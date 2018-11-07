@@ -4,13 +4,19 @@ import devtoolPlugin from "./devtoolPlugin";
 import {
   Mutations,
   Store,
+  SyncStore,
   IVueState,
   IIndexable,
   IStoreProxy,
   Mutation
 } from "./types";
+import LocalStorage from "./localStorage";
 
 const getterPrefix: string = "__";
+const SYNC_MUTATION_KEY = "STORE_SYNC_MUTATION";
+const SYNC_SNAPSHOT_KEY = "STORE_SYNC_SNAPSHOT";
+
+var storage = new LocalStorage();
 
 export default class StoreProxy<S, M extends Mutations<S>>
   implements IStoreProxy<S> {
@@ -20,12 +26,14 @@ export default class StoreProxy<S, M extends Mutations<S>>
     data: Object.create(null)
   });
   private _getterTree: any = Object.create(null);
+  private _syncMutationTree: any = Object.create(null);
   private _committing: boolean = false;
   private _subscribers: ((mutation: Mutation, state: S) => void)[] = [];
 
   constructor(private _root: Store<S, M>) {
+    this._syncSetup();
     this._registerModule(this._root, this._getterTree, "");
-    
+
     // Copy getters to proxy
     helpers.getGetterNames(this._root).forEach(key => {
       let store = this;
@@ -120,68 +128,88 @@ export default class StoreProxy<S, M extends Mutations<S>>
   }
 
   private _registerSubModules(
-    mod: Store<any, any>,
+    store: Store<any, any>,
     getters: any,
-    prefix: string
+    path: string
   ) {
-    helpers.getPropertyNames(mod).forEach(key => {
+    const submodules = helpers.getPropertyNames(store);
+    if (store instanceof SyncStore && submodules.length > 0){
+      throw new Error("SyncStore with path '" + path+"' can no have sub-modules");
+    }
+    submodules.forEach(key => {
       getters[key] = {};
-      mod.state[key] = (mod as IIndexable)[key].state;
-      this._registerModule(
-        (mod as IIndexable)[key],
-        getters[key],
-        prefix + key + "/"
-      );
+      store.state[key] = (store as IIndexable)[key].state;
+      this._registerModule((store as IIndexable)[key], getters[key], path + key + "/");
     });
   }
+
   /** Register modules recursively */
   private _registerModule(
-    mod: Store<any, any>,
+    store: Store<any, any>,
     getters: any,
-    prefix: string
+    path: string
   ) {
     //Getters
-    this._registerGetters(mod, getters, prefix);
+    this._registerGetters(store, getters, path);
 
     //Mutations
-    this._wrapMutations(mod.mutations, mod.state, prefix);
+    this._wrapMutations(store, path);
 
     //Recursion
-    this._registerSubModules(mod, getters, prefix);
+    this._registerSubModules(store, getters, path);
+
+    //Load state for synchronized stores
+    this._syncTryLoadState(store, path);
   }
 
-  private _registerGetters(mod: Store<any, any>, getters: any, prefix: string) {
-    let store = this;
-    helpers.getGetterNames(mod).forEach(key => {
-      store._computedTree[getterPrefix + prefix + key] = () => {
-        return (mod as IIndexable)[key];
+  private _registerGetters(
+    store: Store<any, any>,
+    getters: any,
+    path: string
+  ) {
+    let proxy = this;
+    helpers.getGetterNames(store).forEach(key => {
+      proxy._computedTree[getterPrefix + path + key] = () => {
+        return (store as IIndexable)[key];
       };
       Object.defineProperty(getters, key, {
-        get: () => store._storeVm[getterPrefix + prefix + key],
+        get: () => proxy._storeVm[getterPrefix + path + key],
         enumerable: true
       });
     });
   }
 
   /** Create proxy method for mutations for logging */
-  private _wrapMutations(
-    mutations: Mutations<any>,
-    state: any,
-    prefix: string
-  ) {
-    const store = this;
-    mutations.__inject(state);
-    helpers.getMethodNames(mutations).forEach(key => {
+  private _wrapMutations(store: Store<any, any>, path: string) {
+    const proxy = this;
+    store.mutations.__inject(store.state);
+    helpers.getMethodNames(store.mutations).forEach(key => {
       // Define proxy method
-      let originalMethod = (mutations as IIndexable)[key];
-      (mutations as IIndexable)[key] = function() {
-        const args = arguments;
-        store._commit(function() {
-          originalMethod.apply(mutations, args);
+      let originalMethod = (store.mutations as IIndexable)[key];
+      (store.mutations as IIndexable)[key] = function() {
+        const args = arguments as any;
+        const payload = Object.keys(args).map(k => args[k]);
+        console.log(payload);
+        proxy._commit(function() {
+          originalMethod.apply(store.mutations, payload);
         });
 
-        store._notifySubscribers(prefix + key, args);
+        proxy._notifySubscribers(path + key, payload);
+        if (store instanceof SyncStore) {
+          proxy._syncPropagate(store, path, path + key, payload);
+        }
       };
+      // Setup synchronized mutations
+      if (store instanceof SyncStore) {
+        this._syncMutationTree[path + key] = function() {
+          const args = arguments as any;
+          const payload = Object.keys(args).map(k => args[k]);
+          proxy._commit(function() {
+            originalMethod.apply(store.mutations, payload);
+          });
+          proxy._notifySubscribers(path + key, payload);
+        };
+      }
     });
   }
 
@@ -207,9 +235,57 @@ export default class StoreProxy<S, M extends Mutations<S>>
     );
   }
 
-  private _replaceStoreState(store: Store<any, any>, state: any) {
-    helpers.getPropertyNames(state).forEach(key => {
-      Vue.set(store.state[key], key, state[key]);
+  private _syncSetup() {
+    // Storage synchronization
+    window.addEventListener("storage", event => {
+      if (event.key !== SYNC_MUTATION_KEY) {
+        return;
+      }
+      if (event.newValue === null) {
+        return;
+      }
+
+      try {
+        const mutation = JSON.parse(event.newValue);
+        var mutationFunc = this._syncMutationTree[mutation.type];
+        if (typeof mutationFunc === "function") {
+          mutationFunc.apply(this, mutation.payload);
+        }
+      } catch (error) {
+        throw new Error(error);
+      }
     });
+  }
+
+  private _syncPropagate(
+    store: Store<any, any>,
+    path: string,
+    type: string,
+    payload: any
+  ) {
+    try {
+      const mutation: Mutation = {
+        type: type,
+        payload: JSON.parse(JSON.stringify(payload))
+      };
+      // Propagate mutation
+      storage.setState(SYNC_MUTATION_KEY, mutation);
+      storage.clearState(SYNC_MUTATION_KEY);
+
+      // Store changed state
+      storage.setState(SYNC_SNAPSHOT_KEY + path, store.state);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+  
+  private _syncTryLoadState(store: Store<any, any>, path: string) {
+    // Replace state from last snapshot
+    const snapshot = storage.getState(SYNC_SNAPSHOT_KEY + path);
+    if (snapshot !== null) {
+      helpers.getPropertyNames(snapshot).forEach(key => {
+        Vue.set(store.state, key, snapshot[key]);
+      });
+    }
   }
 }

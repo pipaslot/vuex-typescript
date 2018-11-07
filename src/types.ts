@@ -12,6 +12,7 @@ export class Mutations<State> {
   }
 }
 
+/** Basic store implementation */
 export class Store<S, M extends Mutations<S>> {
   constructor(private _state: S, private _mutations: M) {}
   /** Module state */
@@ -22,6 +23,11 @@ export class Store<S, M extends Mutations<S>> {
   public get mutations(): M {
     return this._mutations;
   }
+}
+
+/** Store synchronized throug local storage. This kind of store can not have sub-modules */
+export class SyncStore<S, M extends Mutations<S>> extends Store<S, M>{
+
 }
 
 export interface IVueState<T> extends Vue {
