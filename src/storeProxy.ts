@@ -187,7 +187,6 @@ export default class StoreProxy<S, M extends Mutations<S>>
       (store.mutations as IIndexable)[key] = function() {
         const args = arguments as any;
         const payload = Object.keys(args).map(k => args[k]);
-        console.log(payload);
         proxy._commit(function() {
           originalMethod.apply(store.mutations, payload);
         });
