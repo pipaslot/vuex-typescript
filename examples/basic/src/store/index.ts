@@ -1,5 +1,5 @@
 import { Mutations, Store } from "../../../../src";
-import syncModule from "./syncModule";
+import syncedModule from "./syncedModule";
 export class RootState {
   count: number = 0;
 }
@@ -20,6 +20,6 @@ export class MyStore extends Store<RootState, RootMutations> {
     return "Count: " + this.state.count + "!!!";
   }
 
-  syncModule = syncModule;
+  syncedModule = syncedModule;
 }
 export default new MyStore(new RootState(), new RootMutations());

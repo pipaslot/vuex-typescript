@@ -26,7 +26,7 @@ export class Store<S, M extends Mutations<S>> {
 }
 
 /** Store synchronized throug local storage. This kind of store can not have sub-modules */
-export class SyncStore<S, M extends Mutations<S>> extends Store<S, M>{
+export class SyncedStore<S, M extends Mutations<S>> extends Store<S, M>{
 
 }
 

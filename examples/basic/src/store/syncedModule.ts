@@ -1,4 +1,4 @@
-import { Mutations, Store, SyncStore } from "../../../../src";
+import { Mutations, Store, SyncedStore } from "../../../../src";
 
 class SyncState {
   count: number = 0;
@@ -10,7 +10,7 @@ class SyncMutations extends Mutations<SyncState> {
   }
 }
 
-class SyncModule extends SyncStore<SyncState, SyncMutations> {
+class SyncedModule extends SyncedStore<SyncState, SyncMutations> {
   // Define store action
   increment(input: number) {
     this.mutations.setCount(this.state.count + input);
@@ -21,4 +21,4 @@ class SyncModule extends SyncStore<SyncState, SyncMutations> {
   }
 }
 
-export default new SyncModule(new SyncState(), new SyncMutations());
+export default new SyncedModule(new SyncState(), new SyncMutations());

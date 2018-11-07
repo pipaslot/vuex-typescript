@@ -4,7 +4,7 @@ import devtoolPlugin from "./devtoolPlugin";
 import {
   Mutations,
   Store,
-  SyncStore,
+  SyncedStore,
   IVueState,
   IIndexable,
   IStoreProxy,
@@ -14,7 +14,7 @@ import LocalStorage from "./localStorage";
 
 const getterPrefix: string = "__";
 const SYNC_MUTATION_KEY = "STORE_SYNC_MUTATION";
-const SYNC_SNAPSHOT_KEY = "STORE_SYNC_SNAPSHOT";
+const SYNC_SNAPSHOT_KEY = "STORE_SYNC_SNAPSHOT_";
 
 var storage = new LocalStorage();
 
@@ -133,7 +133,7 @@ export default class StoreProxy<S, M extends Mutations<S>>
     path: string
   ) {
     const submodules = helpers.getPropertyNames(store);
-    if (store instanceof SyncStore && submodules.length > 0){
+    if (store instanceof SyncedStore && submodules.length > 0){
       throw new Error("SyncStore with path '" + path+"' can no have sub-modules");
     }
     submodules.forEach(key => {
@@ -195,12 +195,12 @@ export default class StoreProxy<S, M extends Mutations<S>>
         });
 
         proxy._notifySubscribers(path + key, payload);
-        if (store instanceof SyncStore) {
+        if (store instanceof SyncedStore) {
           proxy._syncPropagate(store, path, path + key, payload);
         }
       };
       // Setup synchronized mutations
-      if (store instanceof SyncStore) {
+      if (store instanceof SyncedStore) {
         this._syncMutationTree[path + key] = function() {
           const args = arguments as any;
           const payload = Object.keys(args).map(k => args[k]);
@@ -278,7 +278,7 @@ export default class StoreProxy<S, M extends Mutations<S>>
       throw new Error(error);
     }
   }
-  
+
   private _syncTryLoadState(store: Store<any, any>, path: string) {
     // Replace state from last snapshot
     const snapshot = storage.getState(SYNC_SNAPSHOT_KEY + path);

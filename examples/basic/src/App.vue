@@ -48,16 +48,16 @@ export default class App extends Vue {
   }
 
   get asSyncGetter() {
-    return this.$store.syncModule.asString;
+    return this.$store.syncedModule.asString;
   }
   get asSyncState() {
-    return this.$store.syncModule.state.count;
+    return this.$store.syncedModule.state.count;
   }
   incrementSync() {
-    this.$store.syncModule.increment(this.number);
+    this.$store.syncedModule.increment(this.number);
   }
   decrementSync() {
-    this.$store.syncModule.increment(-this.number);
+    this.$store.syncedModule.increment(-this.number);
   }
 }
 </script>
