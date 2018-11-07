@@ -7,16 +7,16 @@ const getterPrefix: string = "__";
 
 export default class StoreProxy<S, M extends Mutations<S>> implements IStoreProxy<S> {
     [key: string]: any;
-    private _computed: any = Object.create(null);
+    private _computedTree: any = Object.create(null);
     private _storeVm: IVueState<S> = new Vue({
         data: Object.create(null)
     });
-    private _getters: any = Object.create(null);
+    private _getterTree: any = Object.create(null);
     private _committing: boolean = false;
     private _subscribers: ((mutation: any, state: S) => void)[] = [];
     constructor(private _root: Store<S, M>) {
         // Getters
-        this._registerGetters(this._root, this._getters, this._computed, "");
+        this._registerGetters(this._root, this._getterTree, "");
 
         // Copy getters to proxy
         helpers.getGetterNames(this._root).forEach(key => {
@@ -36,7 +36,7 @@ export default class StoreProxy<S, M extends Mutations<S>> implements IStoreProx
         });
 
         // Register submodules
-        this._registerSubModules(this._root, this._getters, this._computed, "");
+        this._registerSubModules(this._root, this._getterTree, "");
 
         // Copy sub-modules into store
         helpers.getPropertyNames(this._root).forEach(key => {
@@ -59,7 +59,7 @@ export default class StoreProxy<S, M extends Mutations<S>> implements IStoreProx
     }
     /** Getter tree */
     get getters() {
-        return this._getters;
+        return this._getterTree;
     }
     /** Root module mutations */
     get mutations() {
@@ -105,7 +105,7 @@ export default class StoreProxy<S, M extends Mutations<S>> implements IStoreProx
             data: {
                 $$state: this._root.state
             },
-            computed: this._computed
+            computed: this._computedTree
         });
 
         Vue.config.silent = silent;
@@ -130,7 +130,6 @@ export default class StoreProxy<S, M extends Mutations<S>> implements IStoreProx
     private _registerSubModules(
         mod: Store<any, any>,
         getters: any,
-        computed: any,
         prefix: string
     ) {
         helpers.getPropertyNames(mod).forEach(key => {
@@ -139,7 +138,6 @@ export default class StoreProxy<S, M extends Mutations<S>> implements IStoreProx
             this._registerSubModule(
                 (mod as IIndexable)[key],
                 getters[key],
-                computed,
                 prefix + key + "/"
             );
         });
@@ -148,28 +146,26 @@ export default class StoreProxy<S, M extends Mutations<S>> implements IStoreProx
     private _registerSubModule(
         mod: Store<any, any>,
         getters: any,
-        computed: any,
         prefix: string
     ) {
         //Getters
-        this._registerGetters(mod, getters, computed, prefix);
+        this._registerGetters(mod, getters, prefix);
 
         //Mutations
         this._wrapMutations(mod.mutations, mod.state, prefix);
 
         //Recursion
-        this._registerSubModules(mod, getters, computed, prefix);
+        this._registerSubModules(mod, getters, prefix);
     }
 
     private _registerGetters(
         mod: Store<any, any>,
         getters: any,
-        computed: any,
         prefix: string
     ) {
+        let store = this;
         helpers.getGetterNames(mod).forEach(key => {
-            let store = this;
-            computed[getterPrefix + prefix + key] = () => {
+            store._computedTree[getterPrefix + prefix + key] = () => {
                 return (mod as IIndexable)[key];
             };
             Object.defineProperty(getters, key, {
