@@ -79,6 +79,8 @@ class MyModuleStore extends Store<MyModuleState, MyModuleMutations> {
 export default new MyModuleStore(new MyModuleState(), new MyModuleMutations());
 ```
 
+You can also use SyncedStore instead of Store base class. SyncedStore will be automatically synchronized across all browser tabs and its state will be shared through local storage.
+
 ### 1.3 Attach store into Vue
 
 main.ts
