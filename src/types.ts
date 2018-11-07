@@ -33,9 +33,14 @@ export interface IIndexable {
   [key: string]: any;
 }
 
+export interface Mutation {
+  type: string;
+  payload: any;
+}
+
 export interface IStoreProxy<S> {
   /** Add Mutation listener */
-  subscribe(handler: (mutation: string, state: any) => void): void;
+  subscribe(handler: (mutation: Mutation, state: any) => void): void;
   /** Replace store state */
   replaceState(state: S): void;
 }
