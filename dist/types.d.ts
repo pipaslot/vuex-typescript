@@ -6,6 +6,7 @@ export declare class Mutations<State> {
     /** Module state */
     protected readonly state: State;
 }
+/** Basic store implementation */
 export declare class Store<S, M extends Mutations<S>> {
     private _state;
     private _mutations;
@@ -15,6 +16,9 @@ export declare class Store<S, M extends Mutations<S>> {
     /** State mutations */
     readonly mutations: M;
 }
+/** Store synchronized throug local storage. This kind of store can not have sub-modules */
+export declare class SyncedStore<S, M extends Mutations<S>> extends Store<S, M> {
+}
 export interface IVueState<T> extends Vue {
     [key: string]: any;
     $$state: T;
@@ -22,11 +26,13 @@ export interface IVueState<T> extends Vue {
 export interface IIndexable {
     [key: string]: any;
 }
+export interface Mutation {
+    type: string;
+    payload: any;
+}
 export interface IStoreProxy<S> {
     /** Add Mutation listener */
-    subscribe(handler: (mutation: string, state: any) => void): void;
+    subscribe(handler: (mutation: Mutation, state: any) => void): void;
     /** Replace store state */
     replaceState(state: S): void;
-    /** Call mutation */
-    commit(mutation: string, payload: any): void;
 }
