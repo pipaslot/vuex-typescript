@@ -61,6 +61,9 @@ var SyncedStore = /** @class */ (function (_super) {
     function SyncedStore() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    /** Method called when state is loaded from local storage during store initialization */
+    SyncedStore.prototype.onLoadState = function () {
+    };
     return SyncedStore;
 }(Store));
 export { SyncedStore };

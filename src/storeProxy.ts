@@ -133,22 +133,24 @@ export default class StoreProxy<S, M extends Mutations<S>>
     path: string
   ) {
     const submodules = helpers.getPropertyNames(store);
-    if (store instanceof SyncedStore && submodules.length > 0){
-      throw new Error("SyncStore with path '" + path+"' can no have sub-modules");
+    if (store instanceof SyncedStore && submodules.length > 0) {
+      throw new Error(
+        "SyncStore with path '" + path + "' can no have sub-modules"
+      );
     }
     submodules.forEach(key => {
       getters[key] = {};
       store.state[key] = (store as IIndexable)[key].state;
-      this._registerModule((store as IIndexable)[key], getters[key], path + key + "/");
+      this._registerModule(
+        (store as IIndexable)[key],
+        getters[key],
+        path + key + "/"
+      );
     });
   }
 
   /** Register modules recursively */
-  private _registerModule(
-    store: Store<any, any>,
-    getters: any,
-    path: string
-  ) {
+  private _registerModule(store: Store<any, any>, getters: any, path: string) {
     //Getters
     this._registerGetters(store, getters, path);
 
@@ -162,11 +164,7 @@ export default class StoreProxy<S, M extends Mutations<S>>
     this._syncTryLoadState(store, path);
   }
 
-  private _registerGetters(
-    store: Store<any, any>,
-    getters: any,
-    path: string
-  ) {
+  private _registerGetters(store: Store<any, any>, getters: any, path: string) {
     let proxy = this;
     helpers.getGetterNames(store).forEach(key => {
       proxy._computedTree[getterPrefix + path + key] = () => {
@@ -280,12 +278,15 @@ export default class StoreProxy<S, M extends Mutations<S>>
   }
 
   private _syncTryLoadState(store: Store<any, any>, path: string) {
-    // Replace state from last snapshot
-    const snapshot = storage.getState(SYNC_SNAPSHOT_KEY + path);
-    if (snapshot !== null) {
-      helpers.getPropertyNames(snapshot).forEach(key => {
-        Vue.set(store.state, key, snapshot[key]);
-      });
+    if (store instanceof SyncedStore) {
+      // Replace state from last snapshot
+      const snapshot = storage.getState(SYNC_SNAPSHOT_KEY + path);
+      if (snapshot !== null) {
+        helpers.getPropertyNames(snapshot).forEach(key => {
+          Vue.set(store.state, key, snapshot[key]);
+        });
+        store.onLoadState();
+      }
     }
   }
 }

@@ -11,6 +11,11 @@ class SyncMutations extends Mutations<SyncState> {
 }
 
 class SyncedModule extends SyncedStore<SyncState, SyncMutations> {
+  onLoadState(){
+    if(this.state.count > 5){
+      alert("count is more than 5");
+    }
+  }
   // Define store action
   increment(input: number) {
     this.mutations.setCount(this.state.count + input);

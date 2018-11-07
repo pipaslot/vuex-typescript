@@ -246,12 +246,15 @@ var StoreProxy = /** @class */ (function () {
         }
     };
     StoreProxy.prototype._syncTryLoadState = function (store, path) {
-        // Replace state from last snapshot
-        var snapshot = storage.getState(SYNC_SNAPSHOT_KEY + path);
-        if (snapshot !== null) {
-            helpers.getPropertyNames(snapshot).forEach(function (key) {
-                Vue.set(store.state, key, snapshot[key]);
-            });
+        if (store instanceof SyncedStore) {
+            // Replace state from last snapshot
+            var snapshot_1 = storage.getState(SYNC_SNAPSHOT_KEY + path);
+            if (snapshot_1 !== null) {
+                helpers.getPropertyNames(snapshot_1).forEach(function (key) {
+                    Vue.set(store.state, key, snapshot_1[key]);
+                });
+                store.onLoadState();
+            }
         }
     };
     return StoreProxy;
