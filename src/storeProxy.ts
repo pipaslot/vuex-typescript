@@ -22,10 +22,10 @@ export default class StoreProxy<S, M extends Mutations<S>>
   private _getterTree: any = Object.create(null);
   private _committing: boolean = false;
   private _subscribers: ((mutation: Mutation, state: S) => void)[] = [];
-  constructor(private _root: Store<S, M>) {
-    // Getters
-    this._registerGetters(this._root, this._getterTree, "");
 
+  constructor(private _root: Store<S, M>) {
+    this._registerModule(this._root, this._getterTree, "");
+    
     // Copy getters to proxy
     helpers.getGetterNames(this._root).forEach(key => {
       let store = this;
@@ -35,16 +35,10 @@ export default class StoreProxy<S, M extends Mutations<S>>
       });
     });
 
-    // Mutations
-    this._wrapMutations(this._root.mutations, this._root.state, "");
-
     // Copy methods
     helpers.getMethodNames(this._root).forEach(key => {
       this[key] = (this._root as IIndexable)[key];
     });
-
-    // Register submodules
-    this._registerSubModules(this._root, this._getterTree, "");
 
     // Copy sub-modules into store
     helpers.getPropertyNames(this._root).forEach(key => {
@@ -133,7 +127,7 @@ export default class StoreProxy<S, M extends Mutations<S>>
     helpers.getPropertyNames(mod).forEach(key => {
       getters[key] = {};
       mod.state[key] = (mod as IIndexable)[key].state;
-      this._registerSubModule(
+      this._registerModule(
         (mod as IIndexable)[key],
         getters[key],
         prefix + key + "/"
@@ -141,7 +135,7 @@ export default class StoreProxy<S, M extends Mutations<S>>
     });
   }
   /** Register modules recursively */
-  private _registerSubModule(
+  private _registerModule(
     mod: Store<any, any>,
     getters: any,
     prefix: string
@@ -202,7 +196,7 @@ export default class StoreProxy<S, M extends Mutations<S>>
     this._committing = committing;
   }
 
-  private _notifySubscribers(type:string, payload:any){
+  private _notifySubscribers(type: string, payload: any) {
     // Notify watchers
     const mutation: Mutation = {
       type: type,
