@@ -3,11 +3,10 @@ declare module '*.vue' {
   export default Vue
 }
 
-import Vue from "vue";
-import { MyStore } from "@/store";
-
 declare module "vue/types/vue" {
+  import Vue from "vue";
+  import { RootStore } from "@/store";
   interface Vue {
-    $store: MyStore;
+    $store: RootStore;
   }
 }

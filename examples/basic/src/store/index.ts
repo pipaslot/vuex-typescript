@@ -10,7 +10,7 @@ export class RootMutations extends Mutations<RootState> {
   }
 }
 
-export class MyStore extends Store<RootState, RootMutations> {
+export class RootStore extends Store<RootState, RootMutations> {
   // Define store action
   increment(input: number) {
     this.mutations.setCount(this.state.count + input);
@@ -22,4 +22,4 @@ export class MyStore extends Store<RootState, RootMutations> {
 
   syncedModule = syncedModule;
 }
-export default new MyStore(new RootState(), new RootMutations());
+export default new RootStore(new RootState(), new RootMutations());
