@@ -164,7 +164,6 @@ var StoreProxy = /** @class */ (function () {
             store.mutations[key] = function () {
                 var args = arguments;
                 var payload = Object.keys(args).map(function (k) { return args[k]; });
-                console.log(payload);
                 proxy._commit(function () {
                     originalMethod.apply(store.mutations, payload);
                 });
