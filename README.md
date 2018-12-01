@@ -101,10 +101,10 @@ Vue.use(vuexTypescript.install, rootStore);
 vue.d.ts or shims-vue.d.ts
 
 ```ts
-import Vue from "vue";
-import { RootStore } from "@/store";
 
 declare module "vue/types/vue" {
+  import Vue from "vue";
+  import { RootStore } from "@/store";
   interface Vue {
     $store: RootStore;
   }
