@@ -19,15 +19,15 @@ import { Mutations, Store } from "pipaslot-vuex-typescript";
 import myModule from "./myModule";
 
 class RootState {
-  myStoreData: string = "";
+  data: string = "";
 }
 class RootMutations extends Mutations<RootState> {
   myMutation(input: string) {
-    this.state.myStoreData = input;
+    this.state.data = input;
   }
 }
 
-export class MyStore extends Store<RootState, RootMutations> {
+export class RootStore extends Store<RootState, RootMutations> {
 // Define store action
   myAction(input: string) {
     this.mutations.myMutation(input);
@@ -38,13 +38,13 @@ export class MyStore extends Store<RootState, RootMutations> {
   }
   // Define store getter
   get myGetter(){
-    return "Getter value: " + this.state.myStoreData + "!!!"
+    return "Getter value: " + this.state.data + "!!!"
   }
   // Define store module. Every Store or store module can contains another Modules.
   myModule = myModule;
 }
 
-export default new MyStore(new RootState(), new RootMutations());
+export default new RootStore(new RootState(), new RootMutations());
 ```
 
 ### 1.2.1 Create Store module (if you need it)
@@ -90,8 +90,8 @@ import Vue from "vue";
 import * as vuexTypescript from "pipaslot-vuex-typescript";
 
 //Attach store to vue components
-import myStore from  "./store"
-Vue.use(vuexTypescript.install, myStore);
+import rootStore from  "./store"
+Vue.use(vuexTypescript.install, rootStore);
 
 ... initialize your application
 ```
@@ -102,11 +102,11 @@ vue.d.ts or shims-vue.d.ts
 
 ```ts
 import Vue from "vue";
-import { MyStore } from "@/store";
+import { RootStore } from "@/store";
 
 declare module "vue/types/vue" {
   interface Vue {
-    $store: MyStore;
+    $store: RootStore;
   }
 }
 ```
@@ -131,7 +131,7 @@ export default class MyComponent extends Vue {
     this.$store.mutations.myMutation(this.myData);
 
     //Get Store state
-    let storeState = this.$store.state.myStoreData;
+    let storeState = this.$store.state.data;
 
     //Get value from store getters
     let storeComputedValue = this.$store.myGetter; // OR: this.$store.getters.myGetter (if indexing is defined)
@@ -167,7 +167,7 @@ export function actionforStoreRoot() {
     store.mutations.myMutation(...);  
 
     //Get Store state
-    let storeState = store.state.myStoreData;
+    let storeState = store.state.data;
 
     //Get value from store getters
     let storeComputedValue = store.myGetter; // OR: store.getters.myGetter (if indexing is defined)
