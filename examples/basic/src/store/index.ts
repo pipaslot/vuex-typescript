@@ -2,11 +2,13 @@ import { Mutations, Store } from "../../../../src";
 import syncedModule from "./syncedModule";
 export class RootState {
   count: number = 0;
+  lastUpdate: Date = new Date()
 }
 
 export class RootMutations extends Mutations<RootState> {
   setCount(input: number) {
     this.state.count = input;
+    this.state.lastUpdate = new Date()
   }
 }
 

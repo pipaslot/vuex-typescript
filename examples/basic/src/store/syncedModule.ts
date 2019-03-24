@@ -2,11 +2,13 @@ import { Mutations, Store, SyncedStore } from "../../../../src";
 
 class SyncState {
   count: number = 0;
+  lastUpdate: Date = new Date();
 }
 
 class SyncMutations extends Mutations<SyncState> {
   setCount(input: number) {
     this.state.count = input;
+    this.state.lastUpdate = new Date()
   }
 }
 

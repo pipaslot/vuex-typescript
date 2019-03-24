@@ -2,6 +2,7 @@
   <div id="app">
     Delta: <input type="number" v-model.number="number">
     <h3>Root Store</h3>
+    <h5>Last update: {{rootLastUpdate}}</h5>
     <dl>
       <dt>Action:</dt>
       <dd>
@@ -14,6 +15,7 @@
       <dd>{{asRootGetter}}</dd>
     </dl>
     <h3>Sync Module</h3>
+    <h5>Last update: {{syncLastUpdate}}</h5>
     <dl>
       <dt>Action:</dt>
       <dd>
@@ -30,34 +32,43 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import rootStore from "./store"
+import syncModule from "./store/syncedModule"
 
 @Component
 export default class App extends Vue {
   number: number = 1;
+  get rootLastUpdate() {
+    return rootStore.state.lastUpdate.getTime();
+  }
   get asRootGetter() {
-    return this.$store.asString;
+    return rootStore.asString;
   }
   get asRootState() {
-    return this.$store.state.count;
+    return rootStore.state.count;
   }
   incrementRoot() {
-    this.$store.increment(this.number);
+    rootStore.increment(this.number);
   }
   decrementRoot() {
-    this.$store.increment(-this.number);
+    rootStore.increment(-this.number);
   }
-
+  get syncLastUpdate() {
+    return rootStore.syncedModule.state.lastUpdate.getTime();
+  }
   get asSyncGetter() {
-    return this.$store.syncedModule.asString;
+    return rootStore.syncedModule.asString;
   }
   get asSyncState() {
-    return this.$store.syncedModule.state.count;
+    return rootStore.syncedModule.state.count;
   }
   incrementSync() {
-    this.$store.syncedModule.increment(this.number);
+    rootStore.syncedModule.increment(this.number);
   }
   decrementSync() {
-    this.$store.syncedModule.increment(-this.number);
+    syncModule.increment(-this.number); 
+    // This call is equal to 
+    //rootStore.syncedModule.increment(-this.number);
   }
 }
 </script>

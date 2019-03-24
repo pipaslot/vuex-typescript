@@ -158,6 +158,8 @@ my-service.ts
 
 ```ts
 import store from "@/store";
+// We can also import store modules and access their value direct
+import myModuleImport from "@/store/myModule";
 
 export function actionforStoreRoot() {
     //Call store action
@@ -184,6 +186,16 @@ export function actionforStoreModule() {
 
     //Get value from store getters
     let storeComputedValue = store.myModule.myModuleGetter; // OR: store.getters.myModule.myModuleGetter (if indexing is defined)
+  }
+  export function directlyAccessModules(){
+    //Call store module action
+    myModuleImport.myModuleAction(...);
+
+    //Call store module mutation
+    myModuleImport.mutations.myModuleMutation(...);  
+
+    //Get Store state
+    let storeState = myModuleImport.state.myStoreData; 
   }
 ```
 
