@@ -21,6 +21,7 @@ import myModule from "./myModule";
 class RootState {
   data: string = "";
 }
+
 class RootMutations extends Mutations<RootState> {
   myMutation(input: string) {
     this.state.data = input;
@@ -30,11 +31,9 @@ class RootMutations extends Mutations<RootState> {
 export class RootStore extends Store<RootState, RootMutations> {
 // Define store action
   myAction(input: string) {
+    ...
+    // Do your work and save changes into store state
     this.mutations.myMutation(input);
-    // call sub-module action
-    this.security.myModuleAction(input);
-    // call sub-mutation action
-    this.security.mutations.myModuleMutation(input);
   }
   // Define store getter
   get myGetter(){
@@ -42,6 +41,14 @@ export class RootStore extends Store<RootState, RootMutations> {
   }
   // Define store module. Every Store or store module can contains another Modules.
   myModule = myModule;
+
+  myActionWithModule(input:string){
+    // Do some work on root store and then propagate actions also into nested modules
+    // call sub-module action
+    this.myModule.myModuleAction(input);
+    // call sub-mutation action
+    this.myModule.mutations.myModuleMutation(input);
+  }
 }
 
 export default new RootStore(new RootState(), new RootMutations());
@@ -174,7 +181,7 @@ export function actionforStoreRoot() {
     //Get value from store getters
     let storeComputedValue = store.myGetter; // OR: store.getters.myGetter (if indexing is defined)
   }
-export function actionforStoreModule() {
+export function actionForStoreModule() {
     //Call store module action
     store.myModule.myModuleAction(...);
 
@@ -187,7 +194,7 @@ export function actionforStoreModule() {
     //Get value from store getters
     let storeComputedValue = store.myModule.myModuleGetter; // OR: store.getters.myModule.myModuleGetter (if indexing is defined)
   }
-  export function directlyAccessModules(){
+  export function directlyAccessModulesFromImports(){
     //Call store module action
     myModuleImport.myModuleAction(...);
 
