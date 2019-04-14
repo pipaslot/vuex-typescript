@@ -22,7 +22,7 @@ export default class StoreProxy<S, M extends Mutations<S>>
   implements IStoreProxy<S> {
   [key: string]: any;
   private _computedTree: any = Object.create(null);
-  private _storeVm: IVueState<S> = new Vue({
+  private _vm: IVueState<S> = new Vue({
     data: Object.create(null)
   });
   private _getterTree: any = Object.create(null);
@@ -38,7 +38,7 @@ export default class StoreProxy<S, M extends Mutations<S>>
     helpers.getGetterNames(this._root).forEach(key => {
       let store = this;
       Object.defineProperty(this, key, {
-        get: () => store._storeVm[getterPrefix + key],
+        get: () => store._vm[getterPrefix + key],
         enumerable: true
       });
     });
@@ -65,7 +65,7 @@ export default class StoreProxy<S, M extends Mutations<S>>
   }
   /** State tree */
   get state() {
-    return this._storeVm.$data.$$state;
+    return this._vm.$data.$$state;
   }
   /** Getter tree */
   get getters() {
@@ -73,6 +73,10 @@ export default class StoreProxy<S, M extends Mutations<S>>
   }
   /** Root module mutations */
   get mutations() {
+    return this._root.mutations;
+  }
+  /** Mutations for vue-devtools, because they are not listening to standard mutation accessor */
+  get _mutations() {
     return this._root.mutations;
   }
   /** Add Mutation listener */
@@ -90,18 +94,18 @@ export default class StoreProxy<S, M extends Mutations<S>>
   /** Replace store state */
   replaceState(state: S) {
     this._commit(() => {
-      this._storeVm._data.$$state = state;
+      this._vm._data.$$state = state;
     });
   }
 
   private _resetStoreVm() {
-    const oldVm = this._storeVm;
+    const oldVm = this._vm;
     // use a Vue instance to store the state tree
     // suppress warnings just in case the user has added
     // some funky global mixins
     const silent = Vue.config.silent;
     Vue.config.silent = true;
-    this._storeVm = new Vue({
+    this._vm = new Vue({
       data: {
         $$state: this._root.state
       },
@@ -111,7 +115,7 @@ export default class StoreProxy<S, M extends Mutations<S>>
     Vue.config.silent = silent;
     //Watch changes
     let watchOptions = { deep: true, sync: true };
-    this._storeVm.$watch(
+    this._vm.$watch(
       function() {
         return this._data.$$state;
       },
@@ -171,7 +175,7 @@ export default class StoreProxy<S, M extends Mutations<S>>
         return (store as IIndexable)[key];
       };
       Object.defineProperty(getters, key, {
-        get: () => proxy._storeVm[getterPrefix + path + key],
+        get: () => proxy._vm[getterPrefix + path + key],
         enumerable: true
       });
     });
