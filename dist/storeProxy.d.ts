@@ -3,7 +3,7 @@ export default class StoreProxy<S, M extends Mutations<S>> implements IStoreProx
     private _root;
     [key: string]: any;
     private _computedTree;
-    private _storeVm;
+    private _vm;
     private _getterTree;
     private _syncMutationTree;
     private _committing;
@@ -15,6 +15,8 @@ export default class StoreProxy<S, M extends Mutations<S>> implements IStoreProx
     readonly getters: any;
     /** Root module mutations */
     readonly mutations: M;
+    /** Mutations for vue-devtools, because they are not listening to standard mutation accessor */
+    readonly _mutations: M;
     /** Add Mutation listener */
     subscribe(handler: (mutation: Mutation, state: any) => void): () => void;
     /** Replace store state */

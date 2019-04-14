@@ -12,7 +12,7 @@ var StoreProxy = /** @class */ (function () {
         var _this = this;
         this._root = _root;
         this._computedTree = Object.create(null);
-        this._storeVm = new Vue({
+        this._vm = new Vue({
             data: Object.create(null)
         });
         this._getterTree = Object.create(null);
@@ -25,7 +25,7 @@ var StoreProxy = /** @class */ (function () {
         helpers.getGetterNames(this._root).forEach(function (key) {
             var store = _this;
             Object.defineProperty(_this, key, {
-                get: function () { return store._storeVm[getterPrefix + key]; },
+                get: function () { return store._vm[getterPrefix + key]; },
                 enumerable: true
             });
         });
@@ -49,7 +49,7 @@ var StoreProxy = /** @class */ (function () {
     Object.defineProperty(StoreProxy.prototype, "state", {
         /** State tree */
         get: function () {
-            return this._storeVm.$data.$$state;
+            return this._vm.$data.$$state;
         },
         enumerable: true,
         configurable: true
@@ -64,6 +64,14 @@ var StoreProxy = /** @class */ (function () {
     });
     Object.defineProperty(StoreProxy.prototype, "mutations", {
         /** Root module mutations */
+        get: function () {
+            return this._root.mutations;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(StoreProxy.prototype, "_mutations", {
+        /** Mutations for vue-devtools, because they are not listening to standard mutation accessor */
         get: function () {
             return this._root.mutations;
         },
@@ -87,18 +95,18 @@ var StoreProxy = /** @class */ (function () {
     StoreProxy.prototype.replaceState = function (state) {
         var _this = this;
         this._commit(function () {
-            _this._storeVm._data.$$state = state;
+            _this._vm._data.$$state = state;
         });
     };
     StoreProxy.prototype._resetStoreVm = function () {
         var _this = this;
-        var oldVm = this._storeVm;
+        var oldVm = this._vm;
         // use a Vue instance to store the state tree
         // suppress warnings just in case the user has added
         // some funky global mixins
         var silent = Vue.config.silent;
         Vue.config.silent = true;
-        this._storeVm = new Vue({
+        this._vm = new Vue({
             data: {
                 $$state: this._root.state
             },
@@ -107,7 +115,7 @@ var StoreProxy = /** @class */ (function () {
         Vue.config.silent = silent;
         //Watch changes
         var watchOptions = { deep: true, sync: true };
-        this._storeVm.$watch(function () {
+        this._vm.$watch(function () {
             return this._data.$$state;
         }, function (newValue, oldValue) {
             if (!_this._committing && process.env.NODE_ENV !== "production") {
@@ -148,7 +156,7 @@ var StoreProxy = /** @class */ (function () {
                 return store[key];
             };
             Object.defineProperty(getters, key, {
-                get: function () { return proxy._storeVm[getterPrefix + path + key]; },
+                get: function () { return proxy._vm[getterPrefix + path + key]; },
                 enumerable: true
             });
         });
