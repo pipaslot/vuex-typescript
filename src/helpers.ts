@@ -1,8 +1,12 @@
+function startsWith(string:string, searched:string){
+  return string.indexOf(searched) == 0
+}
+
 export function getMethodNames(obj: any): string[] {
   if (!obj) return [];
   return Object.getOwnPropertyNames(Object.getPrototypeOf(obj)).filter(
     key =>
-      !key.startsWith("_") &&
+      !startsWith(key, "_") &&
       typeof obj[key] === "function" &&
       key != "constructor"
   );
@@ -20,6 +24,6 @@ export function getGetterNames(obj: any): string[] {
 export function getPropertyNames(obj: any): string[] {
   if (!obj) return [];
   return Object.keys(obj).filter(key => {
-    return !key.startsWith("_");
+    return !startsWith(key, "_");
   });
 }
