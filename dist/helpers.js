@@ -1,8 +1,11 @@
+function startsWith(string, searched) {
+    return string.indexOf(searched) == 0;
+}
 export function getMethodNames(obj) {
     if (!obj)
         return [];
     return Object.getOwnPropertyNames(Object.getPrototypeOf(obj)).filter(function (key) {
-        return !key.startsWith("_") &&
+        return !startsWith(key, "_") &&
             typeof obj[key] === "function" &&
             key != "constructor";
     });
@@ -20,6 +23,6 @@ export function getPropertyNames(obj) {
     if (!obj)
         return [];
     return Object.keys(obj).filter(function (key) {
-        return !key.startsWith("_");
+        return !startsWith(key, "_");
     });
 }
