@@ -242,7 +242,7 @@ export default class StoreProxy<S, M extends Mutations<S>>
       if (event.key !== SYNC_MUTATION_KEY) {
         return;
       }
-      if (event.newValue === null) {
+      if (event.newValue == null || event.newValue == "") {
         return;
       }
 
